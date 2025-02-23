@@ -203,7 +203,11 @@ def process_pdf(pdf_path):
     
     # --- Create the RetrievalQA (RAG) pipeline ---
 
-
+    llm_for_qa = ChatGroq(
+    groq_api_key=os.getenv("GROQ_API_KEY"),  # Add this line
+    temperature=0.5,
+    model="llama-3.1-8b-instant"
+    )
     # Replace the existing RAG pipeline section with:
     qa_prompt_template = """Use the following pieces of context to answer the question at the end.
     If you don't know the answer, just say you don't know, don't try to make up an answer.
