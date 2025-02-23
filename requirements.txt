@@ -17,5 +17,4 @@ opencv-python-headless==4.9.0.80
 lxml==5.1.0
 tiktoken==0.7.0
 langchain-community==0.3.18
-pytesseract==0.3.13
 torch==2.2.2
