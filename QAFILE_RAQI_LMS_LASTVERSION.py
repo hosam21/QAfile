@@ -72,7 +72,7 @@ def get_images_base64(chunks):
     return images_b64
 
 # --- Helper to index documents ---
-def index_documents(summaries: List[str], originals: List[str], doc_type: str):
+def index_documents(summaries: List[str], originals: List[str], doc_type: str, id_key: str):
     """
     For each summary (if valid), create a unique doc_id, index the summary into the vectorstore,
     and store the original content in the docstore. The 'doc_type' helps distinguish the data.
@@ -187,9 +187,9 @@ def process_pdf(pdf_path):
     id_key = "doc_id"
     
     # Index documents
-    index_documents(text_summaries, text_originals, "text")
-    index_documents(table_summaries, table_originals, "table")
-    index_documents(image_summaries, image_originals, "image")
+    index_documents(text_summaries, text_originals, "text", id_key)
+    index_documents(table_summaries, table_originals, "table", id_key)
+    index_documents(image_summaries, image_originals, "image", id_key)
 
     # --- Create a MultiVectorRetriever ---
     retriever = MultiVectorRetriever(
