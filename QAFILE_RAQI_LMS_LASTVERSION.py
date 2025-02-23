@@ -155,11 +155,12 @@ def process_pdf(pdf_path):
     
     # --- Build vectorstore and document store ---
     embedding_function = OpenSourceEmbeddings()
+  
+    persist_directory = os.path.join(os.getcwd(), "chroma_db")
     client_settings = Settings(
-    chroma_db_impl="duckdb+parquet",
-    persist_directory="chroma_db"
+    persist_directory=persist_directory,
+    is_persistent=True
     )
-
     vectorstore = Chroma(
     collection_name="multi_modal_rag",
     embedding_function=embedding_function,
