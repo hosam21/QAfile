@@ -155,13 +155,16 @@ def process_pdf(pdf_path):
     
     # --- Build vectorstore and document store ---
     embedding_function = OpenSourceEmbeddings()
-    vectorstore = Chroma(
+     vectorstore = Chroma(
     collection_name="multi_modal_rag",
     embedding_function=embedding_function,
-    client_settings=Settings(chroma_api_impl="in_memory", anonymized_telemetry=False)
+    client_settings=Settings(
+         chroma_api_impl="rest",
+         chroma_server_host="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",     # e.g., "api.yourdomain.com"
+         chroma_server_http_port=8000,    # e.g., 8000
+         anonymized_telemetry=False
+        )
     )
-    docstore = CustomInMemoryDocStore()
-    id_key = "doc_id"
     
     # Index documents
     index_documents(text_summaries, text_originals, "text", vectorstore, docstore, id_key)
