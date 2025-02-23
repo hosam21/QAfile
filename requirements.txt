@@ -1,9 +1,9 @@
 pip>=25.0.1
 streamlit==1.39.0
-langchain-groq==0.2.4
 langchain==0.3.19
+langchain-groq==0.2.4
 langchain-chroma==0.2.2
-unstructured[pdf]==0.16.23
+unstructured[pdf]==0.17.0
 sentence-transformers==2.6.0
 chromadb==0.6.3
 transformers==4.48.3
@@ -13,3 +13,5 @@ pytesseract==0.3.13
 pdf2image==1.17.0
 huggingface-hub==0.28.1
 groq==0.18.0
+opencv-python-headless==4.9.0.80
+
