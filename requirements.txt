@@ -13,5 +13,6 @@ pdf2image==1.17.0
 huggingface-hub==0.28.1
 groq==0.18.0
 unstructured[pdf]==0.16.23
-opencv-python-headless==4.9.0.80  # Use headless version to avoid GUI dependencies
+opencv-python-headless==4.9.0.80 
+
 
