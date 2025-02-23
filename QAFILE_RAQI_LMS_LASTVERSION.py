@@ -155,7 +155,7 @@ def process_pdf(pdf_path):
     
     # --- Build vectorstore and document store ---
     embedding_function = OpenSourceEmbeddings()
-     vectorstore = Chroma(
+    vectorstore = Chroma(
     collection_name="multi_modal_rag",
     embedding_function=embedding_function,
     client_settings=Settings(
