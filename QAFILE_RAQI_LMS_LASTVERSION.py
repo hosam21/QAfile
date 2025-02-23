@@ -84,15 +84,7 @@ def index_documents(summaries: List[str], originals: List[str], doc_type: str, i
         if summary and summary.strip():
             doc_id = str(uuid.uuid4())
             doc_ids.append(doc_id)
-            documents.append(Document(
-                page_content=summary,
-                metadata={
-                    "id": doc_id,  # Changed from id_key to "id"
-                    "doc_id": doc_id,  # Add explicit doc_id field
-                    "type": doc_type,
-                    "source": "pdf"  # Add source identifier
-                }
-            ))
+            documents.append(Document(page_content=summary, metadata={id_key: doc_id, "type": doc_type}))
     if documents:
         # Add summaries to the vectorstore
         vectorstore.add_documents(documents)
@@ -212,31 +204,16 @@ def process_pdf(pdf_path):
     # --- Create the RetrievalQA (RAG) pipeline ---
 
 
-    qa_prompt_template = """Use the following pieces of context to answer the question at the end.
-    If you don't know the answer, just say you don't know, don't try to make up an answer.
-
-    {context}
-
-    Question: {question}
-    Helpful Answer:"""
-    
     llm_for_qa = ChatGroq(
-        groq_api_key=os.getenv("GROQ_API_KEY"),
-        temperature=0.5,
-        model="llama-3.1-8b-instant"
+    groq_api_key=os.getenv("GROQ_API_KEY"),  # Add this line
+    temperature=0.5,
+    model="llama-3.1-8b-instant"
     )
-
     rag_pipeline = RetrievalQA.from_chain_type(
         llm=llm_for_qa,
         chain_type="stuff",
         retriever=retriever,
-        return_source_documents=True,
-        chain_type_kwargs={
-            "prompt": PromptTemplate(
-                template=qa_prompt_template,
-                input_variables=["context", "question"]
-            )
-        }
+        return_source_documents=True
     )
 
 # --- Streamlit App UI ---
