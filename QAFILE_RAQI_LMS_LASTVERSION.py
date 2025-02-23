@@ -157,9 +157,7 @@ def process_pdf(pdf_path):
     embedding_function = OpenSourceEmbeddings()
     client_settings = Settings(
     chroma_db_impl="duckdb+parquet",
-    persist_directory="chroma_db",
-    tenant="default",
-    database="default"
+    persist_directory="chroma_db"
     )
 
     vectorstore = Chroma(
