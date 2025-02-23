@@ -204,17 +204,28 @@ def process_pdf(pdf_path):
     # --- Create the RetrievalQA (RAG) pipeline ---
 
 
-    llm_for_qa = ChatGroq(
-    groq_api_key=os.getenv("GROQ_API_KEY"),  # Add this line
-    temperature=0.5,
-    model="llama-3.1-8b-instant"
-    )
+    # Replace the existing RAG pipeline section with:
+    qa_prompt_template = """Use the following pieces of context to answer the question at the end.
+    If you don't know the answer, just say you don't know, don't try to make up an answer.
+
+    {context}
+
+    Question: {question}
+    Helpful Answer:"""
+
     rag_pipeline = RetrievalQA.from_chain_type(
         llm=llm_for_qa,
         chain_type="stuff",
         retriever=retriever,
-        return_source_documents=True
+        return_source_documents=True,
+        chain_type_kwargs={
+            "prompt": PromptTemplate(
+                template=qa_prompt_template,
+                input_variables=["context", "question"]
+            )
+        }
     )
+    return rag_pipeline  # This is the critical missing line
 
 # --- Streamlit App UI ---
 st.title("PDF QA App")
@@ -237,6 +248,6 @@ if st.button("Ask"):
     if st.session_state.qa_pipeline is None:
         st.error("Please upload and process a PDF first.")
     else:
-        result = st.session_state.qa_pipeline(query_text)
+        result = st.session_state.qa_pipeline.invoke(query_text)
         st.subheader("Answer:")
         st.write(result['result'])
