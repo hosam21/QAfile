@@ -6,7 +6,7 @@ langchain==0.3.19
 langchain-chroma==0.2.2
 sentence-transformers==2.6.0
 chromadb==0.6.3
-transformers==44.50.0 
+transformers==4.48.3
 python-dotenv==1.0.1
 pillow==10.2.0
 pytesseract==0.3.13
