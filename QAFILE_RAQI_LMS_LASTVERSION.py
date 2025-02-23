@@ -1,4 +1,6 @@
-import pysqlite3  
+import pysqlite3
+import sys
+sys.modules["sqlite3"] = pysqlite3
 import streamlit as st
 import tempfile
 import os
@@ -11,7 +13,7 @@ from unstructured.partition.pdf import partition_pdf
 from langchain_groq import ChatGroq
 from langchain_core.prompts import ChatPromptTemplate
 from langchain_core.output_parsers import StrOutputParser
-from transformers import BlipProcessor, BlipForConditionalGeneration
+from transformers.models.blip import BlipProcessor, BlipForConditionalGeneration
 from sentence_transformers import SentenceTransformer
 from langchain_chroma import Chroma
 from langchain_core.documents import Document
