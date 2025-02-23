@@ -166,7 +166,8 @@ def process_pdf(pdf_path):
     embedding_function=embedding_function,
     client_settings=client_settings
     )
-
+    docstore = CustomInMemoryDocStore()
+    id_key = "doc_id"
     
     # Index documents
     index_documents(text_summaries, text_originals, "text", vectorstore, docstore, id_key)
