@@ -155,7 +155,11 @@ def process_pdf(pdf_path):
     
     # --- Build vectorstore and document store ---
     embedding_function = OpenSourceEmbeddings()
-    vectorstore = Chroma(collection_name="multi_modal_rag", embedding_function=embedding_function)
+    vectorstore = Chroma(
+    collection_name="multi_modal_rag",
+    embedding_function=embedding_function,
+    persist_directory=None
+    )
     docstore = CustomInMemoryDocStore()
     id_key = "doc_id"
     
