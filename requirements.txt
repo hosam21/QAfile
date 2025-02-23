@@ -19,3 +19,4 @@ lxml==5.1.0
 tiktoken==0.7.0
 langchain-community==0.3.18
 torch==2.2.2
+typing-extensions==4.11.0 
