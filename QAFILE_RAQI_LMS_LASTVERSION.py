@@ -20,22 +20,26 @@ from langchain_core.documents import Document
 from langchain_core.stores import BaseStore
 from langchain.retrievers.multi_vector import MultiVectorRetriever
 from langchain.chains import RetrievalQA
-
+from typing import List, Optional, Iterator
 from dotenv import load_dotenv
 load_dotenv()  # This will load variables from the .env file into os.environ
 # --- Custom In-Memory DocStore ---
 class CustomInMemoryDocStore(BaseStore[str, Document]):
     def __init__(self):
         self._store = {}
-    def mset(self, key_value_pairs):
+    
+    def mset(self, key_value_pairs: List[tuple[str, Document]]) -> None:
         for key, value in key_value_pairs:
             self._store[key] = value
-    def mget(self, keys):
+
+    def mget(self, keys: List[str]) -> List[Optional[Document]]:
         return [self._store.get(key) for key in keys]
-    def mdelete(self, keys):
+
+    def mdelete(self, keys: List[str]) -> None:
         for key in keys:
             self._store.pop(key, None)
-    def yield_keys(self, prefix=None):
+
+    def yield_keys(self, prefix: Optional[str] = None) -> Iterator[str]:
         for key in self._store:
             if prefix is None or key.startswith(prefix):
                 yield key
@@ -44,12 +48,17 @@ class CustomInMemoryDocStore(BaseStore[str, Document]):
 class OpenSourceEmbeddings:
     def __init__(self, model_name: str = "all-MiniLM-L6-v2"):
         self.model = SentenceTransformer(model_name)
-    def embed_documents(self, docs):
+    
+    def embed_documents(self, docs: List[str]) -> List[List[float]]:
+        # Ensure each document is a non-empty string; fallback to "unknown"
         processed_docs = [doc if (isinstance(doc, str) and doc.strip()) else "unknown" for doc in docs]
         return self.model.encode(processed_docs, convert_to_numpy=True).tolist()
-    def embed_query(self, query: str):
+    
+    def embed_query(self, query: str) -> List[float]:
+        # Fallback to "unknown" if query is empty
         query = query if (isinstance(query, str) and query.strip()) else "unknown"
         return self.model.encode([query], convert_to_numpy=True).tolist()[0]
+
 
 # --- Helper function to extract images in base64 ---
 def get_images_base64(chunks):
@@ -62,7 +71,11 @@ def get_images_base64(chunks):
     return images_b64
 
 # --- Helper to index documents ---
-def index_documents(summaries, originals, doc_type, vectorstore, docstore, id_key="doc_id"):
+def index_documents(summaries: List[str], originals: List[str], doc_type: str):
+    """
+    For each summary (if valid), create a unique doc_id, index the summary into the vectorstore,
+    and store the original content in the docstore. The 'doc_type' helps distinguish the data.
+    """
     doc_ids = []
     documents = []
     for summary, original in zip(summaries, originals):
@@ -71,12 +84,14 @@ def index_documents(summaries, originals, doc_type, vectorstore, docstore, id_ke
             doc_ids.append(doc_id)
             documents.append(Document(page_content=summary, metadata={id_key: doc_id, "type": doc_type}))
     if documents:
+        # Add summaries to the vectorstore
         vectorstore.add_documents(documents)
+        # Add corresponding original content to the document store
         for doc_id, original in zip(doc_ids, originals):
             content = original if (isinstance(original, str) and original.strip()) else "unknown"
             docstore.mset([(doc_id, Document(page_content=content, metadata={"type": doc_type}))])
     else:
-        st.write(f"No valid {doc_type} documents to add.")
+        print(f"No valid {doc_type} documents to add.")
 
 # --- Main function to process the PDF and build the QA pipeline ---
 def process_pdf(pdf_path):
@@ -152,6 +167,7 @@ def process_pdf(pdf_path):
     text_originals = [str(t) for t in texts]
     table_originals = [str(t) for t in tables]
     image_originals = [str(i) for i in image_summaries]
+
     
     # --- Build vectorstore and document store ---
     embedding_function = OpenSourceEmbeddings()
@@ -170,10 +186,10 @@ def process_pdf(pdf_path):
     id_key = "doc_id"
     
     # Index documents
-    index_documents(text_summaries, text_originals, "text", vectorstore, docstore, id_key)
-    index_documents(table_summaries, table_originals, "table", vectorstore, docstore, id_key)
-    index_documents(image_summaries, image_originals, "image", vectorstore, docstore, id_key)
-    
+    index_documents(text_summaries, text_originals, "text")
+    index_documents(table_summaries, table_originals, "table")
+    index_documents(image_summaries, image_originals, "image")
+
     # --- Create a MultiVectorRetriever ---
     retriever = MultiVectorRetriever(
         vectorstore=vectorstore,
@@ -181,6 +197,7 @@ def process_pdf(pdf_path):
         id_key=id_key,
         search_kwargs={"k": 5}
     )
+    
     
     # --- Create the RetrievalQA (RAG) pipeline ---
     llm_for_qa = ChatGroq(
