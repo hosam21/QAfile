@@ -8,7 +8,7 @@ import uuid
 import base64
 from io import BytesIO
 from PIL import Image
-
+from chromadb.config import Settings
 from unstructured.partition.pdf import partition_pdf
 from langchain_groq import ChatGroq
 from langchain_core.prompts import ChatPromptTemplate
@@ -158,7 +158,7 @@ def process_pdf(pdf_path):
     vectorstore = Chroma(
     collection_name="multi_modal_rag",
     embedding_function=embedding_function,
-    persist_directory=None
+    client_settings=Settings(chroma_api_impl="in_memory", anonymized_telemetry=False)
     )
     docstore = CustomInMemoryDocStore()
     id_key = "doc_id"
