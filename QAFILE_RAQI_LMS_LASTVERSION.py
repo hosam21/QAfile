@@ -20,7 +20,8 @@ from langchain_core.documents import Document
 from langchain_core.stores import BaseStore
 from langchain.retrievers.multi_vector import MultiVectorRetriever
 from langchain.chains import RetrievalQA
-from typing import List, Optional, Iterator
+from typing import List, Optional
+from collections.abc import Iterator
 from dotenv import load_dotenv
 load_dotenv()  # This will load variables from the .env file into os.environ
 # --- Custom In-Memory DocStore ---
